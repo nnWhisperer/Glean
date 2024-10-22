@@ -47,8 +47,8 @@ using this option, creation will fail if the current schema has
 a different definition for any predicate in the base DB schema;
 therefore predicates may only be added or removed relative to the base DB.
 * `FILE..`<br />
-File(s) of facts to write into the database (JSON). See [Writing data
-to Glean](./write.md).
+File(s) of facts to write into the database. Accepts JSON or compressed (zstd) JSONs.
+See [Writing data to Glean](./write.md).
 
 The schema for the new DB is given by:
 
@@ -74,8 +74,8 @@ Write facts to a database.
 * `--db NAME/INSTANCE` or `--db-name NAME --db-instance INSTANCE`<br />
 Specifies the name and instance of the database
 * `FILE..`<br />
-File(s) of facts to write into the database (JSON). See [Writing data
-to Glean](./write.md).
+File(s) of facts to write into the database. Accepts JSON or compressed (zstd) JSONs.
+See [Writing data to Glean](./write.md).
 * `--finish`<br />
 Also mark the DB as complete
 
@@ -143,7 +143,7 @@ Maximum number of bytes per page
 * `--page-facts FACTS`<br />
 Maximum number of facts per page
 
-* `--recursive`<br />
+* `--expand`<br />
 Fetch nested facts (slower)
 
 * `--limit FACTS`<br />
@@ -154,6 +154,9 @@ Output the facts to a file
 
 * `--stats FILE`<br />
 Output stats to a file ('-' for stdout)
+
+* `--profile`<br />
+Get full profiling information; use with `--stats` to include facts_searched
 
 * `--timeout MILLISECONDS`
 Override the default query timeout
@@ -173,7 +176,7 @@ DB location, see `:list-all` in glean shell.
 
 Alternatively the DB to restore can be specified by:
 
-* `--db NAME/INSTANCE` or `--db-name NAME` and (`--db-instance INSTANCE` or `--date YYY-MM-DD`)
+* `--db NAME/INSTANCE` or `--db-name NAME` and (`--db-instance INSTANCE` or `--date YYY-MM-DD` or `--latest`)
 
 ### `glean validate`
 

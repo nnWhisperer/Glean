@@ -171,7 +171,7 @@ predicate Has :
   {
     class_ : Class,
     has : Member,
-    access : enum { Public | Private },
+    access : enum { public_ | private_ },
   }
 
 predicate Member :
@@ -182,11 +182,15 @@ predicate Member :
 }
 ```
 
-The predicate `Has` maps a `Class` to a `Member` (with a `Public` or `Private` annotation), and a `Member` is either `method` or `variable`, with some associated data. Note that a `Class` might have more than one `Member`, which is fine: there can be multiple `Has` facts for a given `Class`.
+The predicate `Has` maps a `Class` to a `Member` (with a `public_` or `private_` annotation), and a `Member` is either `method` or `variable`, with some associated data. Note that a `Class` might have more than one `Member`, which is fine: there can be multiple `Has` facts for a given `Class`.
 
 :::note
 
-The schema uses `class_` rather than `class` as a field name, because `class` is a reserved word in Angle. There are many such reserved words, which are reserved not because Angle uses them, but because they cause problems for code that is automatically generated from the schema. To avoid having too many ad-hoc language-specific naming rules, Glean prevents certain problematic names from being used in the schema. The Angle compiler will tell you if you try to use a reserved word.
+The schema uses `class_` rather than `class` as a field name, because
+`class` is a reserved word in Angle. Similarly, we added trailing
+underscores to `public_` and`private_` for the same reason.
+
+There are many such reserved words, which are reserved not because Angle uses them, but because they cause problems for code that is automatically generated from the schema. To avoid having too many ad-hoc language-specific naming rules, Glean prevents certain problematic names from being used in the schema. The Angle compiler will tell you if you try to use a reserved word.
 
 :::
 
@@ -232,7 +236,7 @@ Methods with documentation:
 facts> example.Member { method = { doc = {  just = _ }}}
 ```
 
-## Or-patterns
+## Choice
 
 In a pattern we can express multiple alternatives by separating patterns with a vertical bar `|`.
 
@@ -252,29 +256,7 @@ facts> example.Has { has = { method = { name = "feed" }} | { variable = _ }}
 (results omitted)
 ```
 
-## If-patterns
-
-We can conditionally match patterns using `if then else`.
-
-Variables matched in the condition will be available in the `then` branch.
-
-Whilst an or-pattern will always evaluate both of its branches, the `else` branch of an if-pattern will
-never be evaluated if the condition succeeds at least once.
-
-For example, we could get all child classes if inheritance is being used in the codebase, or
-retrieve all classes if it isn't.
-```
-facts > if (example.Parent { child = X }) then X else example.Class _
-  { "id": 1025, "key": { "name": "Lizard", "line": 20 } }
-  { "id": 1026, "key": { "name": "Fish", "line": 30 } }
-  { "id": 1027, "key": { "name": "Goldfish", "line": 40 } }
-```
-
-Please note that if-patterns cannot be used in stored derived predicates. This
-is the case because they require the use of negation, which is disallowed in
-stored predicates.
-
-## More complex queries
+## Variables and more complex queries
 
 So far we’ve seen how to query for facts by matching patterns, including matching nested facts.  In this section we’ll see how to construct more complex queries that combine matching facts from multiple predicates.
 
@@ -369,6 +351,82 @@ C where
   example.Has { class_ = C, has = { method = { name = "feed" }}}
 ```
 
+## Dot syntax
+
+So far we've been extracting fields from records by writing patterns,
+but we can also extract fields from records using the traditional "dot
+syntax". For example, instead of
+
+```
+example.Parent { child = { name = "Fish" }}
+```
+
+we could write
+
+```
+example.Parent P where P.child.name = "Fish"
+```
+
+Here
+* `example.Parent P` selects facts of `example.Parent` and binds the key to the variable `P`
+* `P.child.name = "Fish"` is a constraint on the `name` field of the `child` field of `P`
+* the query returns all facts of `example.Parent` that satisfy the constraint
+
+Dot syntax tends to be more concise than patterns when there are
+deeply-nested records, because it avoids all the nested braces.
+
+### Dot syntax for union types
+
+Matching union types can also be achieved using dot syntax. For
+example, earlier we had
+
+```
+example.Has { has = { variable = { name = "fins" }}}
+```
+
+using dot syntax this would be
+
+```
+example.Has H where H.has.variable?.name = "fins"
+```
+
+Note that when selecting a union type we add a '?' suffix,
+as with `.variable?` in the example above. This makes it more obvious
+that we're doing something conditional: if `X.has` is not a
+`variable`, then `X.has.variable?` has no values.
+
+Selecting from union types works nicely with choice (`|`):
+
+```
+Name where
+  example.Has H;
+  Name = (H.has.variable?.name | H.has.method?.name)
+```
+
+returns all the names of variables and methods.
+
+## If-then-else
+
+We can conditionally match patterns using `if then else`.
+
+Variables matched in the condition will be available in the `then` branch.
+
+Whilst a choice will always evaluate both of its branches, the `else` branch of an if will
+never be evaluated if the condition succeeds at least once.
+
+For example, we could get all child classes if inheritance is being used in the codebase, or
+retrieve all classes if it isn't.
+```
+facts > if (example.Parent { child = X }) then X else example.Class _
+  { "id": 1025, "key": { "name": "Lizard", "line": 20 } }
+  { "id": 1026, "key": { "name": "Fish", "line": 30 } }
+  { "id": 1027, "key": { "name": "Goldfish", "line": 40 } }
+```
+
+Please note that `if` cannot be used in stored derived predicates. This
+is the case because they require the use of negation, which is disallowed in
+stored predicates.
+
 ## Arrays
 
 When the schema uses an array, we need to be able to write queries that traverse the elements of the array. For example, a common use of an array is to represent the list of declarations in a source file. Our example schema defines the `FileClasses` predicate:
@@ -449,21 +507,21 @@ As a rule of thumb we tend to use tuple syntax in cases where the predicate is "
 
 ## Enums and bool
 
-An `enum` type is a set of named constants. In the `Has` predicate we used an `enum` type to indicate whether a class member is `Public` or `Private`:
+An `enum` type is a set of named constants. In the `Has` predicate we used an `enum` type to indicate whether a class member is `public_` or `private_`:
 
 ```lang=angle
 predicate Has :
   {
     class_ : Class,
     has : Member,
-    access : enum { Public | Private },
+    access : enum { public_ | private_ },
   }
 ```
 
-To match an `enum` we just use the appropriate identifier, in this case `Public` or `Private`:
+To match an `enum` we just use the appropriate identifier, in this case `public_` or `private`:
 
 ```lang=angle
-facts> example.Has { access = Private }
+facts> example.Has { access = private_ }
 { "id": 1036, "key": { "class_": { "id": 1026 }, "has": { "id": 1035 }, "access": 1 } }
 ```
 
@@ -474,6 +532,16 @@ The boolean type `bool` is a special case of an `enum`, defined like this:
 ```lang=angle
 type bool = enum { false | true }
 ```
+
+:::note
+
+Normally the constants of an `enum` should begin with a lower case
+letter. You can use constants beginning with an upper-case letter, but
+to distinguish the constant from a variable name you may sometimes
+need to provide a type signature, e.g. `Constant : Type` rather than
+just `Constant`.
+
+:::
 
 ## Negation
 
