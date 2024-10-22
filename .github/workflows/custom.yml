@@ -142,8 +142,8 @@ jobs:
       - name: Fetch hsthrift and build folly, rocksdb
         run: ./install_deps.sh --threads $(nproc)
 
-      - name: Nuke build artifacts
-        run: rm -rf /tmp/fbcode_builder_getdeps-Z__wZGleanZGleanZhsthriftZbuildZfbcode_builder-root/
+      # - name: Nuke build artifacts
+      #   run: rm -rf /tmp/fbcode_builder_getdeps-Z__wZGleanZGleanZhsthriftZbuildZfbcode_builder-root/
 
       - name: Setup hsthrift environment
         run: |
