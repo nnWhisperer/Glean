@@ -175,9 +175,11 @@ jobs:
         name: Build hiedb-indexer
         run: make glean-hiedb
 
+      - name: Save build artifacts
+        uses: actions/download-artifact@v4
+
       - name: Run tests
         run: make test
-      - uses: actions/download-artifact@v4
 
   # # check the vscode extension builds
   # vscode:
