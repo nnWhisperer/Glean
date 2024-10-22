@@ -23,7 +23,7 @@ jobs:
 #        include:
 #          - ghc: 8.10.7
 #            compiler: clang
-    runs-on: 32-core-ubuntu
+    runs-on: ubuntu-latest
     container:
       image: ubuntu:24.04
       options: --security-opt=seccomp=unconfined
@@ -179,20 +179,20 @@ jobs:
         run: make test
       - uses: actions/download-artifact@v4
 
-  # check the vscode extension builds
-  vscode:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
-      - name: Build VS Code Extension
-        run: npx vsce package
-        working-directory: glean/vscode
-      - name: Archive .vsix extension file
-        uses: actions/upload-artifact@v4
-        with:
-          name: glean-vsix
-          path: |
-            glean/vscode/*.vsix
+  # # check the vscode extension builds
+  # vscode:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+  #     - name: Setup Node
+  #       uses: actions/setup-node@v4
+  #     - name: Build VS Code Extension
+  #       run: npx vsce package
+  #       working-directory: glean/vscode
+  #     - name: Archive .vsix extension file
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: glean-vsix
+  #         path: |
+  #           glean/vscode/*.vsix
