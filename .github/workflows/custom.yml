@@ -26,7 +26,6 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ubuntu:24.04
-      options: --security-opt=seccomp=unconfined
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -139,6 +138,16 @@ jobs:
           apt-get install -y git ninja-build \
             libaio-dev libbz2-dev libdouble-conversion-dev libdwarf-dev libgoogle-glog-dev libiberty-dev libjemalloc-dev \
             liblzma-dev liblz4-dev libsnappy-dev libsodium-dev libssl-dev libunwind-dev libzstd-dev libfast-float-dev
+
+      - name: Install hsthrift and Glean dependencies
+        run: apt-get install -y pkg-config rsync libgmock-dev libpcre3-dev libtinfo-dev libxxhash-dev
+
+      - name: Install glean-clang dependencies
+        run: apt-get install -y clang-15 libclang-15-dev libclang-cpp15-dev libre2-dev
+
+      - name: Set up timestamp
+        run: echo "$(date +%s)" > /timestamp.txt
+
       - name: Fetch hsthrift and build folly, rocksdb
         run: ./install_deps.sh --threads $(nproc)
 
@@ -156,17 +165,11 @@ jobs:
       - name: Disable some tests
         run: echo CABAL_CONFIG_FLAGS="$CABAL_CONFIG_FLAGS -f-hack-tests -f-rust-tests -f-python-tests" >> "$GITHUB_ENV"
 
-      - name: Install hsthrift and Glean dependencies
-        run: apt-get install -y pkg-config rsync libgmock-dev libpcre3-dev libtinfo-dev libxxhash-dev
-
       - name: Build hsthrift and Glean
         run: make
 
       - name: Build glass
         run: make glass
-
-      - name: Install glean-clang dependencies
-        run: apt-get install -y clang-15 libclang-15-dev libclang-cpp15-dev libre2-dev
 
       - name: Build glean-clang
         run: make glean-clang
@@ -175,8 +178,19 @@ jobs:
         name: Build hiedb-indexer
         run: make glean-hiedb
 
+      - name: Find and list new artifacts
+        run: |
+          find / -type f -newermt "@$(cat timestamp.txt)" \( -name "*.so" -o -name "*.dll" -o -name "*.dylib" -o -executable \) 2>/dev/null > artifact_list.txt
+          cat artifact_list.txt
+
+      - name: Tar artifacts
+        run: tar -cf /my_files.tar -T /artifact_list.txt
+
       - name: Save build artifacts
         uses: actions/download-artifact@v4
+        with:
+          name: my-artifact
+          path: /my_files.tar
 
       - name: Run tests
         run: make test
