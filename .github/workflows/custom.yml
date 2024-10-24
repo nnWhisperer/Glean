@@ -41,7 +41,7 @@ jobs:
       - name: Initialize APT
         run: |
           apt-get update
-          apt-get install -y curl
+          apt-get install -y curl findutils
 
       - name: Fail fast - Find new artifacts
         run: |
