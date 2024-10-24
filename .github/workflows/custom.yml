@@ -32,10 +32,25 @@ jobs:
         with:
           ref: ${{ inputs.checkout_ref }}
 
+      - name: Fail fast - Set up timestamp1
+        run: echo "$(date +%s)" > /timestamp1.txt
+
+      - name: Failt fast - cat timestamp1.txt
+        run: cat /timestamp1.txt
+
       - name: Initialize APT
         run: |
           apt-get update
           apt-get install -y curl
+
+      - name: Fail fast - Find new artifacts
+        run: |
+          find / -type f -newermt "@$(cat /timestamp1.txt)" \( -name "*.so" -o -executable \) 2>/dev/null > /artifact_list1.txt
+
+      - name: Fail fast - list new artifacts
+        run: |
+          cat /artifact_list1.txt
+
       - name: Setup en_US.UTF-8 locale
         run: |
           apt-get install -y locales
@@ -180,7 +195,7 @@ jobs:
 
       - name: Find and list new artifacts
         run: |
-          find / -type f -newermt "@$(cat /timestamp.txt)" \( -name "*.so" -o -name "*.dll" -o -name "*.dylib" -o -executable \) 2>/dev/null > /artifact_list.txt
+          find / -type f -newermt "@$(cat /timestamp.txt)" \( -name "*.so" -o -executable \) 2>/dev/null > /artifact_list.txt
           cat /artifact_list.txt
 
       - name: Tar artifacts
