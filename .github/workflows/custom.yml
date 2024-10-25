@@ -214,7 +214,6 @@ jobs:
       - name: Save build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: my-artifact
           path: /__w/Glean/Glean/my_files.tar
 
       - name: Run tests
