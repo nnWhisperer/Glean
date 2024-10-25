@@ -46,7 +46,12 @@ jobs:
       - name: Fail fast - Find new artifacts
         run: |
           set +e
-          echo $(find / -type f -newermt "@$(cat /timestamp1.txt)" \( -name "*.so" -o -executable \) 2>/dev/null > /artifact_list1.txt) >> $GITHUB_OUTPUT
+          find "$LOCAL_BIN" -type f -newermt "@$(cat /timestamp1.txt)" \( -name "*.so" -o -executable \) 2>/dev/null > "$LOCAL_BIN"/artifact_list1.txt
+
+      # - name: Fail fast - Find new artifacts
+        # run: |
+          # set +e
+          # find / -type f -newermt "@$(cat /timestamp1.txt)" \( -name "*.so" -o -executable \) 2>/dev/null > /artifact_list1.txt
 
       - name: Fail fast - echo github output
         run: |
@@ -54,7 +59,7 @@ jobs:
 
       - name: Fail fast - list new artifacts
         run: |
-          cat /artifact_list1.txt
+          cat "$LOCAL_BIN"/artifact_list1.txt
 
       - name: Setup en_US.UTF-8 locale
         run: |
