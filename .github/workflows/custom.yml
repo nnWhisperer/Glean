@@ -19,10 +19,10 @@ jobs:
       matrix:
         # ghc: [8.6.5, 8.8.4, 8.10.7]
         ghc: [8.10.7]
-        compiler: [gcc]
-        include:
-          - ghc: 8.10.7
-            compiler: clang
+        compiler: [clang]
+        # include:
+          # - ghc: 8.10.7
+            # compiler: gcc
     runs-on: ubuntu-latest
     container:
       image: ubuntu:24.04
@@ -46,7 +46,7 @@ jobs:
       - name: Fail fast - Find new artifacts
         run: |
           set +e
-          find "$LOCAL_BIN" -type f -newermt "@$(cat /timestamp1.txt)" \( -name "*.so" -o -executable \) > "$LOCAL_BIN"/artifact_list1.txt
+          find /__w/Glean/Glean/ -type f -newermt "@$(cat /timestamp1.txt)" \( -name "*.so" -o -executable \) > /__w/Glean/Glean/artifact_list1.txt
 
       # - name: Fail fast - Find new artifacts
         # run: |
@@ -59,7 +59,7 @@ jobs:
 
       - name: Fail fast - list new artifacts
         run: |
-          cat "$LOCAL_BIN"/artifact_list1.txt
+          cat /__w/Glean/Glean/artifact_list1.txt
 
       - name: Setup en_US.UTF-8 locale
         run: |
@@ -205,17 +205,17 @@ jobs:
 
       - name: Find and list new artifacts
         run: |
-          find / -type f -newermt "@$(cat /timestamp.txt)" \( -name "*.so" -o -executable \) 2>/dev/null > /artifact_list.txt
-          cat /artifact_list.txt
+          find /__w/Glean/Glean/ -type f -newermt "@$(cat /timestamp.txt)" \( -name "*.so" -o -executable \) 2>/dev/null > /__w/Glean/Glean/artifact_list.txt
+          cat /__w/Glean/Glean/artifact_list.txt
 
       - name: Tar artifacts
-        run: tar -cf /my_files.tar -T /artifact_list.txt
+        run: tar -cf /__w/Glean/Glean/my_files.tar -T /__w/Glean/Glean/artifact_list.txt
 
       - name: Save build artifacts
         uses: actions/download-artifact@v4
         with:
           name: my-artifact
-          path: /my_files.tar
+          path: /__w/Glean/Glean/my_files.tar
 
       - name: Run tests
         run: make test
