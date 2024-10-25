@@ -46,7 +46,7 @@ jobs:
       - name: Fail fast - Find new artifacts
         run: |
           set +e
-          find "$LOCAL_BIN" -type f -newermt "@$(cat /timestamp1.txt)" \( -name "*.so" -o -executable \) 2>/dev/null > "$LOCAL_BIN"/artifact_list1.txt
+          find "$LOCAL_BIN" -type f -newermt "@$(cat /timestamp1.txt)" \( -name "*.so" -o -executable \) > "$LOCAL_BIN"/artifact_list1.txt
 
       # - name: Fail fast - Find new artifacts
         # run: |
