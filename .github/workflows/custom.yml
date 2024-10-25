@@ -214,10 +214,10 @@ jobs:
       - name: List tar artifacts size
         run: ls -alh /__w/Glean/Glean/my_files.tar
 
-      - name: Save build artifacts
-        uses: actions/download-artifact@v4
+      - name: Save(upload) build artifacts
+        uses: actions/upload-artifact@v4
         with:
-          pattern: /__w/Glean/Glean/my_files.tar
+          path: /__w/Glean/Glean/my_files.tar
 
       - name: Run tests
         run: make test
