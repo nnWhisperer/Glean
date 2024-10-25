@@ -211,10 +211,13 @@ jobs:
       - name: Tar artifacts
         run: tar -cf /__w/Glean/Glean/my_files.tar -T /__w/Glean/Glean/artifact_list.txt
 
+      - name: List tar artifacts size
+        run: ls -alh /__w/Glean/Glean/my_files.tar
+
       - name: Save build artifacts
         uses: actions/download-artifact@v4
         with:
-          path: /__w/Glean/Glean/my_files.tar
+          pattern: /__w/Glean/Glean/my_files.tar
 
       - name: Run tests
         run: make test
