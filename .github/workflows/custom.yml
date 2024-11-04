@@ -46,7 +46,7 @@ jobs:
       - name: Fail fast - Find new artifacts
         run: |
           set +e
-          find /__w/Glean/Glean/ -type f -newermt "@$(cat /timestamp1.txt)" \( -name "*.so" -o -executable \) > /__w/Glean/Glean/artifact_list1.txt
+          find / -type f -newermt "@$(cat /timestamp1.txt)" \( -name "*.so*" -o -executable \) > /__w/Glean/Glean/artifact_list1.txt
 
       # - name: Fail fast - Find new artifacts
         # run: |
@@ -205,7 +205,7 @@ jobs:
 
       - name: Find and list new artifacts
         run: |
-          find /__w/Glean/Glean/ -type f -newermt "@$(cat /timestamp.txt)" \( -name "*.so" -o -executable \) 2>/dev/null > /__w/Glean/Glean/artifact_list.txt
+          find / -type f -newermt "@$(cat /timestamp.txt)" \( -name "*.so*" -o -executable \) 2>/dev/null > /__w/Glean/Glean/artifact_list.txt
           cat /__w/Glean/Glean/artifact_list.txt
 
       - name: Tar artifacts
